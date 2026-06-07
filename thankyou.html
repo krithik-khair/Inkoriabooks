@@ -10,6 +10,7 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent; /* Remove blue tap highlight */
     }
 
     body {
@@ -22,6 +23,21 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+      /* Disable text selection globally (except inputs) */
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Keep form elements selectable (though there are none, but for consistency) */
+    input, textarea {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    /* Smooth fade-out transition */
+    .fade-out {
+      opacity: 0;
+      transition: opacity 0.25s ease;
     }
 
     .container {
@@ -34,6 +50,7 @@
       border: 1px solid #E8E0D3;
       text-align: center;
       margin: 0 auto;
+      transition: opacity 0.25s ease;
     }
 
     .icon {
@@ -104,6 +121,9 @@
       transition: all 0.2s ease;
       background: #2C2A29;
       color: #FCFAF5;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
     }
     .btn:hover {
       background: #C6A15B;
@@ -175,7 +195,7 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="thankYouContainer">
     <div class="icon">࿗</div>
     <h1>Thank You, <span class="book-name" id="bookName">Seeker</span>.</h1>
     <p>Your order has been received and is being processed.</p>
@@ -187,7 +207,7 @@
     </div>
 
     <div class="buttons">
-      <a href="https://inkoriabooks.com" class="btn">Explore More Books</a>
+      <button class="btn" id="exploreBtn">Explore More Books</button>
     </div>
 
     <div class="footer-note">
@@ -196,12 +216,38 @@
   </div>
 
   <script>
+    // Get book name from URL parameter
     const urlParams = new URLSearchParams(window.location.search);
     let book = urlParams.get('book') || urlParams.get('product_name');
     if (book) {
       book = decodeURIComponent(book).replace(/[+]/g, ' ');
       document.getElementById('bookName').innerText = book;
     }
+
+    // Smooth fade and redirect
+    const exploreBtn = document.getElementById('exploreBtn');
+    const container = document.getElementById('thankYouContainer');
+
+    exploreBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      container.classList.add('fade-out');
+      setTimeout(() => {
+        window.location.href = 'https://inkoriabooks.com';
+      }, 250);
+    });
+
+    // Disable right-click on images and container (copy protection)
+    document.querySelectorAll('img').forEach(img => {
+      img.setAttribute('draggable', 'false');
+      img.addEventListener('dragstart', (e) => e.preventDefault());
+    });
+    document.addEventListener('contextmenu', (e) => {
+      const tag = e.target.tagName.toLowerCase();
+      // Allow right-click on inputs only (none here, so disable globally)
+      if (tag !== 'input' && tag !== 'textarea') {
+        e.preventDefault();
+      }
+    });
   </script>
 </body>
 </html>

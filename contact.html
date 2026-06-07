@@ -41,6 +41,11 @@
       box-shadow: 0 20px 40px -12px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.02);
       border: 1px solid #E8E0D3;
       margin: 0 auto;
+      transition: opacity 0.25s ease;
+    }
+
+    .fade-out {
+      opacity: 0;
     }
 
     .icon {
@@ -164,6 +169,7 @@
       text-decoration: none;
       font-size: 13px;
       transition: color 0.2s;
+      cursor: pointer;
     }
     .back-link a:hover {
       color: #C6A15B;
@@ -247,12 +253,11 @@
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="contactContainer">
   <div class="icon">✉</div>
   <h1>Write to us</h1>
   <p class="subhead">We’ll respond as soon as we can — usually within 24 hours.</p>
 
-  <!-- STANDARD FORM SUBMISSION (works with Formspree) -->
   <form id="contactForm" action="https://formspree.io/f/xkoajarg" method="POST">
     <div class="form-group">
       <label>Your name</label>
@@ -272,7 +277,7 @@
   </form>
 
   <div class="back-link">
-    <a href="https://inkoriabooks.com">← Back to INKORIA</a>
+    <a href="#" id="backLink">← Back to INKORIA</a>
   </div>
 </div>
 
@@ -287,12 +292,22 @@
 <script>
   const form = document.getElementById('contactForm');
   const submitBtn = document.getElementById('submitBtn');
+  const container = document.getElementById('contactContainer');
+  const backLink = document.getElementById('backLink');
 
-  // Override form submission to handle loading state and custom modal, but still let Formspree do its job
+  // Smooth fade-out transition for back link
+  backLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    container.classList.add('fade-out');
+    setTimeout(() => {
+      window.location.href = 'https://inkoriabooks.com';
+    }, 250);
+  });
+
+  // Form submission with fallback
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Show loading animation
     submitBtn.classList.add('btn-loading');
 
     const formData = new FormData(form);
@@ -309,12 +324,10 @@
           form.reset();
         });
       } else {
-        // Fallback: if fetch fails (e.g., CORS), fall back to traditional form submit
-        // This ensures the message still gets delivered even if modal fails
+        // Fallback: traditional submit
         form.submit();
       }
     } catch (error) {
-      // If fetch fails completely, fall back to traditional form submit
       form.submit();
     } finally {
       submitBtn.classList.remove('btn-loading');
